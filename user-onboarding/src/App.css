@@ -31,3 +31,11 @@
     transform: rotate(360deg);
   }
 }
+
+/* not rendering */
+/* .form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+ 
+} */
