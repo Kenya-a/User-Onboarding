@@ -1,17 +1,26 @@
-import React from 'react';
-import { withFormik, Field} from 'formik';
+import React, { useState, useEffect } from 'react';
+import { withFormik,Form, Field} from 'formik';
 
 import * as Yup from 'yup';
 import axios from 'axios';
 
 
-function InputForm({values, errors, touched, isSubmitting}) {
-    // ??Why can just error be passed through??
-    console.log('Hello')
+function InputForm({values, errors, touched, status, handleSubmit}) {
+    const [users, setUser] = useState([]);
+    console.log('user', users, 'status', status) 
+
+    useEffect(() => {
+        if (status) {
+            setUser([...users, status]);
+        }
+
+    }, [status])
+    
+
 
     return (
         <div className='form'>
-           <form> 
+           <Form> 
                <Field
                    type = 'text'
                    name = 'username'
@@ -61,8 +70,17 @@ function InputForm({values, errors, touched, isSubmitting}) {
                  />
                  Accept Terms of Service
                 </label>
-                <button disabled = {isSubmitting}>Submit!</button>
-            </form>
+                <button 
+                type = 'submit'>Submit!</button>
+            </Form>
+
+            {users.map(user => (
+                <p key = {user.id}>{user.email}</p>
+            ))}
+
+        
+
+
         </div>
     );
 }
@@ -75,7 +93,7 @@ const FormikInputForm = withFormik({
             password: password || '',
             email: email || '',
             tos: tos || false,
-            gender: gender || 'female'
+            gender: gender || ''
         };
     },
 
@@ -95,28 +113,29 @@ const FormikInputForm = withFormik({
     //===========End Validation Schema ===============
 
 
-    handleSubmit(values, {resetForm, setErrors, setSubmitting}) {
-        console.log('Values:',values)
+    handleSubmit(values, { setStatus }) {
+        // console.log('Values:',values)
         // Form submission will log here
 
-        if (values.email === 'alreadytaken@atb.dev') {
-            setErrors({ email: 'Email is already taken'});
-        } else {
+        // if (values.email === 'alreadytaken@atb.dev') {
+        //     setErrors({ email: 'Email is already taken'});
+        // } else {
             axios.post('https://reqres.in/api/users',values)
 
             .then(response => {
                 console.log('Axios Response', response)
+                setStatus(response.data);
                 //This show is data was successfully loaded.
-                resetForm();
-                setSubmitting(false);
+                // resetForm();
+                // setSubmitting(false);
             })
 
             .catch(error => {
-                console.log('Axios Error:', error)
-                setSubmitting(false);
+                console.log('Axios Error:', error.response)
+                // setSubmitting(false);
             });
 
-        }
+        // }
     },
 
 })(InputForm)
