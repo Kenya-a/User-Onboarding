@@ -1,11 +1,13 @@
 import React from 'react';
-import { withFormik, Form, Field} from 'formik';
+import { withFormik, Field} from 'formik';
 
 import * as Yup from 'yup';
+import axios from 'axios';
 
 
-function InputForm({values, errors, touched}) {
+function InputForm({values, errors, touched, isSubmitting}) {
     // ??Why can just error be passed through??
+    console.log('Hello')
 
     return (
         <div className='form'>
@@ -59,7 +61,7 @@ function InputForm({values, errors, touched}) {
                  />
                  Accept Terms of Service
                 </label>
-                <button>Submit!</button>
+                <button disabled = {isSubmitting}>Submit!</button>
             </form>
         </div>
     );
@@ -93,9 +95,28 @@ const FormikInputForm = withFormik({
     //===========End Validation Schema ===============
 
 
-    handleSubmit(values) {
-        console.log(values)
+    handleSubmit(values, {resetForm, setErrors, setSubmitting}) {
+        console.log('Values:',values)
         // Form submission will log here
+
+        if (values.email === 'alreadytaken@atb.dev') {
+            setErrors({ email: 'Email is already taken'});
+        } else {
+            axios.post('https://reqres.in/api/users',values)
+
+            .then(response => {
+                console.log('Axios Response', response)
+                //This show is data was successfully loaded.
+                resetForm();
+                setSubmitting(false);
+            })
+
+            .catch(error => {
+                console.log('Axios Error:', error)
+                setSubmitting(false);
+            });
+
+        }
     },
 
 })(InputForm)
